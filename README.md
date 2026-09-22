@@ -1,5 +1,7 @@
 # 30 Pro Brushes for Photoshop & Illustrator
 
+> **Created by Abdullah**
+
 A professional web studio and suite of 30 graphic design brushes for Adobe Photoshop and Adobe Illustrator, featuring real-time drawing canvas testing and single/bundle export engines.
 
 ## 🚀 Live GitHub Pages Deployment

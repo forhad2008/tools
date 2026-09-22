@@ -164,7 +164,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({
           {/* Notice */}
           <div className="flex items-center gap-2 text-neutral-400 text-[10px] sm:text-[11px] bg-neutral-900/40 p-2.5 rounded-lg border border-neutral-800/60">
             <ShieldCheck className="w-4 h-4 text-cyan-400 shrink-0" />
-            <span>100% Free for personal and commercial graphic works. Royalty-free license.</span>
+            <span>Created by <strong className="text-neutral-200 font-medium">Abdullah</strong> • 100% Free for personal and commercial graphic works. Royalty-free license.</span>
           </div>
         </div>
 

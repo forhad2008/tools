@@ -73,7 +73,7 @@ export default function App() {
         {viewMode === 'split' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
             {/* Left: Interactive Live Drawing Studio (6 cols on lg) */}
-            <div className="lg:col-span-6 lg:sticky lg:top-24 h-[440px] sm:h-[540px] md:h-[600px] lg:h-[660px] flex flex-col">
+            <div className="lg:col-span-6 h-[520px] sm:h-[580px] md:h-[640px] lg:h-[720px] xl:h-[760px] flex flex-col">
               <div className="flex items-center justify-between mb-1.5 sm:mb-2 px-0.5">
                 <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
                   Interactive Brush Studio
@@ -119,7 +119,7 @@ export default function App() {
 
         {/* Canvas Only View Mode */}
         {viewMode === 'canvas' && (
-          <div className="h-[480px] sm:h-[600px] md:h-[680px] lg:h-[760px] flex flex-col">
+          <div className="h-[560px] sm:h-[660px] md:h-[740px] lg:h-[820px] flex flex-col">
             <div className="flex items-center justify-between mb-1.5 sm:mb-2 px-0.5">
               <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400">
                 Full Canvas Drawing Studio
@@ -176,7 +176,9 @@ export default function App() {
       {/* Footer */}
       <footer className="border-t border-neutral-800/80 bg-neutral-950 py-6 text-center text-xs text-neutral-500 mt-auto">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p>© 2026 30 Pro Graphic Brushes Suite. Free for Commercial &amp; Personal Creative Projects.</p>
+          <p>
+            © 2026 30 Pro Graphic Brushes Suite • Created by <span className="text-cyan-400 font-semibold">Abdullah</span>. Free for Commercial &amp; Personal Creative Projects.
+          </p>
           <div className="flex items-center gap-4 text-xs">
             <button
               onClick={() => setIsDownloadModalOpen(true)}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Download, 
   Search, 
@@ -36,8 +36,40 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
 
+  // Touch moving / drag-to-scroll system
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const isPointerDownRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+  const isDraggingRef = useRef(false);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!scrollRef.current) return;
+    isPointerDownRef.current = true;
+    isDraggingRef.current = false;
+    startXRef.current = e.pageX - scrollRef.current.offsetLeft;
+    scrollLeftRef.current = scrollRef.current.scrollLeft;
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isPointerDownRef.current || !scrollRef.current) return;
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startXRef.current) * 1.5;
+    if (Math.abs(walk) > 4) {
+      isDraggingRef.current = true;
+    }
+    scrollRef.current.scrollLeft = scrollLeftRef.current - walk;
+  };
+
+  const handlePointerUpOrLeave = () => {
+    isPointerDownRef.current = false;
+    setTimeout(() => {
+      isDraggingRef.current = false;
+    }, 50);
+  };
+
   return (
-    <header className="border-b border-neutral-800 bg-neutral-950/95 backdrop-blur-md sticky top-0 z-40 text-neutral-100 transition-all">
+    <header className="border-b border-neutral-800 bg-neutral-950/95 backdrop-blur-md relative z-40 text-neutral-100 transition-all">
       <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 sm:h-16 gap-2 sm:gap-4">
           {/* Logo & Branding */}
@@ -47,7 +79,7 @@ export const Header: React.FC<HeaderProps> = ({
                 <Paintbrush className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-cyan-400" />
               </div>
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 flex flex-col justify-center">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <span className="text-xs sm:text-base font-bold tracking-tight text-white truncate">
                   30 Pro Brushes
@@ -56,8 +88,10 @@ export const Header: React.FC<HeaderProps> = ({
                   v2.0
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] text-neutral-400 hidden md:block truncate">
-                Photoshop (.ABR / 2048px Stamps) &amp; Illustrator (Vector SVGs)
+              <p className="text-[10px] sm:text-[11px] text-neutral-400 truncate leading-tight mt-0.5">
+                Created by <span className="text-cyan-300 font-medium">Abdullah</span>
+                <span className="hidden sm:inline"> • Photoshop (.ABR / 2048px Stamps) &amp; Illustrator (Vector SVGs)</span>
+                <span className="sm:hidden text-neutral-500"> • PS &amp; AI</span>
               </p>
             </div>
           </div>
@@ -172,38 +206,68 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         )}
 
-        {/* Responsive Category Pills Navigation Bar */}
-        <div className="py-2.5 flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none border-t border-neutral-900/80 -mx-3 sm:mx-0 px-3 sm:px-0">
+        {/* Touch-Moving Responsive Category Navigation Bar */}
+        <div
+          ref={scrollRef}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUpOrLeave}
+          onPointerLeave={handlePointerUpOrLeave}
+          onPointerCancel={handlePointerUpOrLeave}
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          className="py-2 sm:py-2.5 flex items-center gap-1.5 sm:gap-2 overflow-x-auto overscroll-x-contain touch-pan-x select-none border-t border-neutral-900/90 -mx-2.5 sm:mx-0 px-2.5 sm:px-0 no-scrollbar cursor-grab active:cursor-grabbing"
+        >
           <button
-            onClick={() => onSelectCategory('all')}
-            className={`px-3 py-1 text-xs rounded-full whitespace-nowrap transition-all font-medium shrink-0 ${
+            onClick={(e) => {
+              if (isDraggingRef.current) {
+                e.preventDefault();
+                return;
+              }
+              onSelectCategory('all');
+            }}
+            className={`px-3 py-1.5 sm:py-1 text-xs rounded-full whitespace-nowrap transition-all font-medium shrink-0 flex items-center gap-1.5 ${
               selectedCategory === 'all'
-                ? 'bg-cyan-400/15 text-cyan-300 border border-cyan-500/40 shadow-sm'
-                : 'text-neutral-400 hover:text-neutral-200 bg-neutral-900/60 hover:bg-neutral-900 border border-neutral-800'
+                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 shadow-sm shadow-cyan-500/10 font-semibold'
+                : 'text-neutral-400 hover:text-neutral-200 bg-neutral-900/80 hover:bg-neutral-800 border border-neutral-800 active:scale-95'
             }`}
           >
-            All Brushes ({totalBrushes})
+            <span>All Brushes</span>
+            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
+              selectedCategory === 'all'
+                ? 'bg-cyan-950 text-cyan-300 border border-cyan-800/60 font-bold'
+                : 'bg-neutral-800 text-neutral-400'
+            }`}>
+              {totalBrushes}
+            </span>
           </button>
           {BRUSH_CATEGORIES.map((cat) => (
             <button
               key={cat.id}
-              onClick={() => onSelectCategory(cat.id)}
-              className={`px-3 py-1 text-xs rounded-full whitespace-nowrap flex items-center gap-1.5 transition-all shrink-0 ${
+              onClick={(e) => {
+                if (isDraggingRef.current) {
+                  e.preventDefault();
+                  return;
+                }
+                onSelectCategory(cat.id);
+              }}
+              className={`px-3 py-1.5 sm:py-1 text-xs rounded-full whitespace-nowrap flex items-center gap-1.5 transition-all shrink-0 ${
                 selectedCategory === cat.id
-                  ? 'bg-cyan-400/15 text-cyan-300 border border-cyan-500/40 font-medium shadow-sm'
-                  : 'text-neutral-400 hover:text-neutral-200 bg-neutral-900/60 hover:bg-neutral-900 border border-neutral-800'
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/50 font-semibold shadow-sm shadow-cyan-500/10'
+                  : 'text-neutral-400 hover:text-neutral-200 bg-neutral-900/80 hover:bg-neutral-800 border border-neutral-800 active:scale-95'
               }`}
             >
               <span>{cat.label}</span>
-              <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
                 selectedCategory === cat.id
-                  ? 'bg-cyan-950 text-cyan-300 border border-cyan-800/60'
+                  ? 'bg-cyan-950 text-cyan-300 border border-cyan-800/60 font-bold'
                   : 'bg-neutral-800 text-neutral-400'
               }`}>
                 {cat.count}
               </span>
             </button>
           ))}
+          {/* Spacer to prevent clipping on mobile edge */}
+          <div className="w-3 shrink-0 sm:hidden" />
         </div>
       </div>
     </header>
